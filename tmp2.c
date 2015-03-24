@@ -276,7 +276,7 @@
         ret = 0;
         /* something 2 */
         exit_2:
-                 free(in_buf);
+                 free(in_buf_save);
                  Num = Num + 1;
         }
         else
