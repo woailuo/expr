@@ -69,7 +69,7 @@ void lzo1x_decompress_safe(int * in_buf, int,
 						int, void *);
 int LZO_E_OK;
 
-int Num = 1;
+int Num = 2;
 int parse_header(u8 *input, long *skip, long in_len)
 {
 	int l;
