@@ -1,154 +1,6 @@
-/*
- * LZO decompressor for the Linux kernel. Code borrowed from the lzo
- * implementation by Markus Franz Xaver Johannes Oberhumer.
- *
- * Linux kernel adaptation:
- * Copyright (C) 2009
- * Albin Tonnerre, Free Electrons <albin.tonnerre@free-electrons.com>
- *
- * Original code:
- * Copyright (C) 1996-2005 Markus Franz Xaver Johannes Oberhumer
- * All Rights Reserved.
- *
- * lzop and the LZO library are free software; you can redistribute them
- * and/or modify them under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING.
- * If not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- * Markus F.X.J. Oberhumer
- * <markus@oberhumer.com>
- * http://www.oberhumer.com/opensource/lzop/
- */
-
-/* #ifdef STATIC */
-/* #include "lzo/lzo1x_decompress_safe.c" */
-/* #else */
-/* #include "linux/decompress/unlzo.h" */
-/* /\* #endif *\/ */
-
-/* #include "linux/types.h" */
-/* #include "linux/lzo.h" */
-/* #include "linux/decompress/mm.h" */
-
-/* #include "linux/compiler.h" */
-/* #include "asm/unaligned" */
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-
-static const unsigned char lzop_magic[] = {
-	0x89, 0x4c, 0x5a, 0x4f, 0x00, 0x0d, 0x0a, 0x1a, 0x0a };
-
-#define LZO_BLOCK_SIZE        (256*1024l)
-#define HEADER_HAS_FILTER      0x00000800L
-#define HEADER_SIZE_MIN       (9 + 7     + 4 + 8     + 1       + 4)
-#define HEADER_SIZE_MAX       (9 + 7 + 1 + 8 + 8 + 4 + 1 + 255 + 4)
-#define  u8 int
-#define  u16 int
-#define  u32 int
-#define  size_t  int
-
-int get_unaligned_be16(int *p);
-int get_unaligned_be32(int *p);
-void unlikely(int);
-
-void lzo1x_worst_compress();
-void lzo1x_decompress_safe(int * in_buf, int,
-						int, void *);
-int LZO_E_OK;
-
-int Num = 2;
-int parse_header(u8 *input, long *skip, long in_len)
-{
-	int l;
-	u8 *parse = input;
-	u8 *end = input + in_len;
-	u8 level = 0;
-	u16 version;
- 
-	/*
-	 * Check that there's enough input to possibly have a valid header.
-	 * Then it is possible to parse several fields until the minimum
-	 * size may have been used.
-	 */
-	if (in_len < HEADER_SIZE_MIN)
-		return 0;
-
-	/* read magic: 9 first bits */
-	for (l = 0; l < 9; l++) {
-		if (*parse++ != lzop_magic[l])
-			return 0;
-	}
-	/* get version (2bytes), skip library version (2),
-	 * 'need to be extracted' version (2) and
-	 * method (1) */
-	version = get_unaligned_be16(parse);
-	parse += 7;
-	if (version >= 0x0940)
-		level = *parse++;
-	if (get_unaligned_be32(parse) & HEADER_HAS_FILTER)
-		parse += 8; /* flags + filter info */
-	else
-		parse += 4; /* flags */
-
-	/*
-	 * At least mode, mtime_low, filename length, and checksum must
-	 * be left to be parsed. If also mtime_high is present, it's OK
-	 * because the next input buffer check is after reading the
-	 * filename length.
-	 */
-	if (end - parse < 8 + 1 + 4)
-		return 0;
-
-	/* skip mode and mtime_low */
-	parse += 8;
-	if (version >= 0x0940)
-		parse += 4;	/* skip mtime_high */
-
-	l = *parse++;
-	/* don't care about the file name, and skip checksum */
-	if (end - parse < l + 4)
-		return 0;
-	parse += l + 4;
-
-	*skip = parse - input;
-	return 1;
-}
-
-int  main(u8 *input, long in_len,
-				long (*fill)(void *, unsigned long),
-				long (*flush)(void *, unsigned long),
-				u8 *output, long *posp,
-				void (*error) (char *x))
-{
-	u8 r = 0;
-	long skip = 0;
-	u32 src_len, dst_len;
-	size_t tmp;
-	u8 *in_buf, *in_buf_save, *out_buf;
-	int ret = -1;
-
-	if (output) {
-		out_buf = output;
-                /* someting 1 */
-                /* someting 2*/
-                /*something 2*/
-                /* something 1 goto exit */
-                        if (input && fill) {
+        if (input && fill) {
                 error("Both input pointer and fill function provided, don't know what to do");
-                goto exit;
+                goto exit_1;
         } else if (input) {
                 in_buf = input;
 
@@ -171,7 +23,7 @@ int  main(u8 *input, long in_len,
 
         if (!parse_header(in_buf, &skip, in_len)) {
                 error("invalid header");
-                goto exit;
+                goto exit_1;
         }
         in_buf += skip;
         in_len -= skip;
@@ -194,7 +46,7 @@ int  main(u8 *input, long in_len,
                 }
                 if (in_len < 4) {
                         error("file corrupted");
-                        goto exit;
+                        goto exit_1;
                 }
                 dst_len = get_unaligned_be32(in_buf);
                 in_buf += 4;
@@ -209,7 +61,7 @@ int  main(u8 *input, long in_len,
 
                 if (dst_len > LZO_BLOCK_SIZE) {
                         error("dest len longer than block size");
-                        goto exit;
+                        goto exit_1;
                 }
 
                 /* read compressed block size, and skip block checksum info */
@@ -220,7 +72,7 @@ int  main(u8 *input, long in_len,
                 }
                 if (in_len < 8) {
                         error("file corrupted");
-                        goto exit;
+                        goto exit_1;
                 }
                 src_len = get_unaligned_be32(in_buf);
                 in_buf += 8;
@@ -228,7 +80,7 @@ int  main(u8 *input, long in_len,
 
                 if (src_len <= 0 || src_len > dst_len) {
                         error("file corrupted");
-                        goto exit;
+                        goto exit_1;
                 }
 
                 /* decompress */
@@ -239,7 +91,7 @@ int  main(u8 *input, long in_len,
                 }
                 if (in_len < src_len) {
                         error("file corrupted");
-                        goto exit;
+                        goto exit_1;
                 }
                 tmp = dst_len;
 
@@ -254,12 +106,12 @@ int  main(u8 *input, long in_len,
 
                         if (r != LZO_E_OK || dst_len != tmp) {
                                 error("Compressed data violation");
-                                goto exit;
+                                goto exit_1;
                         }
                 }
 
                 if (flush && flush(out_buf, dst_len) != dst_len)
-                        goto exit;
+                        goto exit_1;
                 if (output)
                         out_buf += dst_len;
                 if (posp)
@@ -286,7 +138,7 @@ int  main(u8 *input, long in_len,
 
         } else if (!fill) {
                 error("NULL input pointer and missing fill function");
-                goto exit;
+                goto exit_1;
         } else {
                  if (in_buf = malloc(0))
         {
@@ -430,38 +282,7 @@ int  main(u8 *input, long in_len,
         else
                 {
                         error("Could not allocate input buffer");
-                        goto exit;
+                        goto exit_1;
                 }
 
         }
-
-	} else if (!flush) {
-		error("NULL output pointer and no flush function provided");
-		goto exit;
-	} else {
-          if (out_buf = malloc(LZO_BLOCK_SIZE))
-            {
-               Num=Num -1;
-              assert(Num >=0);
-
-
-
-             exit_1: 
-              free(out_buf);
-              Num = Num + 1;
-              /* somting 1*/
-            }
-          else
-            {
-               	error("Could not allocate output buffer");
-                goto exit;
-            }
-
-	}
-
-
-exit:
-	return ret;
-}
-
-/* #define decomress unlzo */

@@ -155,6 +155,7 @@ int  main(u8 *input, long in_len,
               assert(Num >=0);
 	}
 
+        /*  something 1 */
 	if (input && fill) {
 		error("Both input pointer and fill function provided, don't know what to do");
 		goto exit_1;
@@ -169,9 +170,11 @@ int  main(u8 *input, long in_len,
 			error("Could not allocate input buffer");
 			goto exit_1;
 		}
-Num=Num -1;
-assert (Num >=0);
+                Num=Num -1;
+                assert (Num >=0);
 	}
+
+        /* something 2*/
 	in_buf_save = in_buf;
 
 	if (posp)
@@ -301,14 +304,16 @@ assert (Num >=0);
 	}
 
 	ret = 0;
+        /* something 2 */
+        /* somthing 1 */
 exit_2:
 	if (!input)
-		free(in_buf_save);
-        Num=Num + 1;
+          {	free(in_buf_save);
+            Num=Num + 1;}
 exit_1:
 	if (!output)
-		free(out_buf);
-        Num=Num + 1;
+          {	free(out_buf);
+            Num=Num + 1;}
 exit:
 	return ret;
 }
