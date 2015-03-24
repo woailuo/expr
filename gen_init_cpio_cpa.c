@@ -331,7 +331,7 @@ static int cpio_mkfile(const char *name, const char *location,
         /* assert */
         Num = Num - 1;
         assert(Num >= 0);
-n
+
         retval = read (file, filebuf, buf.st_size);
         if (retval < 0) {
                 fprintf (stderr, "Can not read %s file\n", location);

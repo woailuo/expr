@@ -148,7 +148,7 @@ int  main(u8 *input, long in_len,
 	} else {
 		out_buf = malloc(LZO_BLOCK_SIZE);
 		if (!out_buf) {
-			error("Could not allocate output buffer");
+                  error("Could not allocate output buffer"); /*743*/
 			goto exit;
 		}
               Num=Num -1;
