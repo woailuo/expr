@@ -14,27 +14,45 @@ struct Poker {
     int num ;
 };
 
+/* char *strdup(char *name) */
+/* { */
+/*   char *p = malloc(sizeof(char)); */
+/*   Num = Num -1; */
+/*   assert(Num >= 0); */
+/*   p = name ; */
+/*   return p; */
+/* } */
+
 struct Poker *Poker_create(char *name, int num)
 {
     struct Poker *pn = malloc(sizeof(struct Poker));
 
-    assert(pn != NULL);
+    if(pn)
+      {
+        /* assert */
+        Num = Num -1 ;
+        assert(Num >= 0);
 
-    /* assert */
-    Num = Num -1 ;
-    assert(Num >= 0);
+        pn->name = strdup(name);
+        /* assert */
+        Num = Num -1 ;
+        assert(Num >= 0);
 
-    pn->name = strdup(name);
-    /* assert */
-    Num = Num -1 ;
-    assert(Num >= 0);
-
-    pn->num = num;
-    return pn;
+        pn->num = num;
+        return pn;
+      }
+    else
+      {
+        printf("Error: no space for allocation\n");
+        exit(1);
+      }
 }
 
 void Poker_destroy(struct Poker *pn)
 {
+  if(pn)
+    {
+
     free(pn->name);
     /* free */
     Num = Num + 1;
@@ -42,6 +60,12 @@ void Poker_destroy(struct Poker *pn)
     free(pn);
     /* free */
     Num = Num + 1;
+    }
+  else
+    {
+      printf("Error: pointer is null \n");
+       exit(1);
+    }
 
 }
 
@@ -61,36 +85,99 @@ void Poker_print(struct Poker *pn)
     }
 }
 
+void result(struct Poker *fst, struct Poker *sec)
+{
+   if(fst->num > sec->num)
+            {
+               printf("winner: player1,   ");
+               Poker_print(fst);
+               printf("loser: player2,    ");
+               Poker_print(sec);
+            }
+          else if(fst->num < sec->num)
+            {
+               printf("winner: player2,   ");
+               Poker_print(sec);
+               printf("loser: player1,    ");
+               Poker_print(fst);
+            }
+          else
+            {
+              printf("player1 and player2 drew\n");
+              Poker_print(fst);
+              Poker_print(sec);
+            }
+}
+
 int main(int argc, char *argv[])
 {
   struct Poker *fst ;
   struct Poker *sec;
   char *pname[] = {"Diamond","Spade","Heart","Club"};
-  printf("Do you have time to play poker? 1 is Yes, to start\n");
   int play ;
+
+ l1:
+  printf("Do you want to play poker? 1 is Yes, to start\n");
   scanf("%d", &play);
 
   if(play > 0)
     {
-      if( fst = Poker_create(pname[rand()%4], (rand()%13) + 1) &&  sec = Poker_create(pname[rand()%4], (rand()%13) + 1))
+      char *name1 = pname[rand()%4];
+      int num1 = (rand()%13) + 1;
+       char *name2 = pname[rand()%4];
+      int num2 = (rand()%13) + 1;
+
+      struct Poker *pn1;
+      struct Poker *pn2;
+      if( (pn1 = malloc(sizeof(struct Poker))) && (pn2 = malloc(sizeof(struct Poker))) )
         {
+          Num = Num -1;
+          assert(Num >= 0);
 
-          /*some statements*/
+          pn1->name = strdup(name1);
+          Num = Num -1;
+          assert(Num >= 0);
 
-          Poker_print(fst);
-          Poker_print(sec);
+          pn1->num = num1;
 
-          /* some statements */
+          fst = pn1;
 
-          Poker_destroy(fst);
-          Poker_destroy(sec);
+          Num = Num -1;
+          assert(Num >= 0);
 
+          pn2->name = strdup(name2);
+          Num = Num -1;
+          assert(Num >= 0);
+
+          pn2->num = num2;
+
+          sec = pn2;
+
+           result(fst,sec);
+
+           free(sec->name);
+           Num = Num + 1;
+           free(sec);
+           Num = Num + 1;
+
+            free(fst->name);
+           Num = Num + 1;
+           free(fst);
+           Num = Num + 1;
+
+        }
+      else
+        {
+           printf("Error: pointer is null \n");
+           exit(1);
         }
 
     }
   else
     {
-      /*some statements*/
+      printf("see you next time\n");
+      exit(0);
     }
+  goto l1;
   return 1;
 }
