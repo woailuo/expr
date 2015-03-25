@@ -127,6 +127,7 @@ int parse_header(u8 *input, long *skip, long in_len)
 	return 1;
 }
 
+/* STATIC int INIT unlzo */
 int  main(u8 *input, long in_len,
 				long (*fill)(void *, unsigned long),
 				long (*flush)(void *, unsigned long),
