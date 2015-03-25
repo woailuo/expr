@@ -82,8 +82,10 @@ void Database_close(struct Connection *conn)
 {
     if(conn) {
         if(conn->file) fclose(conn->file);
+
         if(conn->db)
           {free(conn->db); Num = Num + 1;}
+
         free(conn);
         Num = Num + 1;
     }

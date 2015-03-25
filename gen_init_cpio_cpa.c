@@ -455,6 +455,7 @@ static int cpio_mkfile_line(const char *line)
                         nlinks++;
                         end += nend;
                 } while (isgraph(line[end]));
+
         } else {
                 dname = name;
         }
