@@ -449,6 +449,9 @@ static int cpio_mkfile_line(const char *line)
         end += nend;
       } while (isgraph(line[end]));
 
+      rc = cpio_mkfile(dname, cpio_replace_env(location),
+                       mode, uid, gid, nlinks);
+
       free(dname);
 
       Num = Num + 1;
@@ -459,14 +462,13 @@ static int cpio_mkfile_line(const char *line)
         fprintf (stderr, "out of memory (%d)\n", dname_len);
         goto fail;
       }
-    
   }
     else{
       dname = name;
-          }
-
-   rc = cpio_mkfile(dname, cpio_replace_env(location),
+      rc = cpio_mkfile(dname, cpio_replace_env(location),
                        mode, uid, gid, nlinks);
+
+          }
 
   fail:
     return rc;
