@@ -80,15 +80,15 @@ struct Connection *Database_open(const char *filename, char mode)
 
 void Database_close(struct Connection *conn)
 {
-    /* if(conn) { */
+    if(conn) {
         if(conn->file) fclose(conn->file);
 
-        /* if(conn->db) */
+        if(conn->db)
           {free(conn->db); Num = Num + 1;}
 
         free(conn);
         Num = Num + 1;
-    /* } */
+    }
 }
 
 void Database_write(struct Connection *conn)
