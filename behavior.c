@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
-int Num = 4;
+int Num = 2;
 void M()
 {
   Num = Num - 1;
@@ -10,14 +10,23 @@ void F()
 {
   Num = Num + 1 ;
 }
-void decompress_unlzo_rw()
+void original()
 {
+ l:
+  M();
+  M();
+  goto l;
+}
+void rw()
+{
+ l:
   M();
   M();
   F();
   F();
+  goto l;
 }
 int main()
 {
-  decompress_unlzo_rw();
+  rw();
 }
