@@ -206,7 +206,11 @@ int main(int argc, char *argv[])
             die("Invalid action, only: c=create, g=get, s=set, d=del, l=list");
     }
 
-    Database_close(conn);
+    if(conn) {free(conn); return rc;} ; ...; return -1
+
+    /*Database_close(conn);*/
+
+    /* something */
 
     return 0;
 }
