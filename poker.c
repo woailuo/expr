@@ -33,7 +33,7 @@ struct Poker *Poker_create(char *name, int num)
         Num = Num -1 ;
         assert(Num >= 0);
 
-        pn->name = strdup(name);
+        /* pn->name = "ddd";/\* strdup(name); *\/ */
         /* assert */
         Num = Num -1 ;
         assert(Num >= 0);
@@ -50,8 +50,8 @@ struct Poker *Poker_create(char *name, int num)
 
 void Poker_destroy(struct Poker *pn)
 {
-  if(pn)
-    {
+  /* if(pn) */
+  /*   { */
 
     free(pn->name);
     /* free */
@@ -60,8 +60,8 @@ void Poker_destroy(struct Poker *pn)
     free(pn);
     /* free */
     Num = Num + 1;
-    }
-  else
+  /*   } */
+  /* else */
     {
       printf("Error: pointer is null \n");
        exit(1);
