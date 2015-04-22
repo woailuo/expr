@@ -61,7 +61,7 @@ void Poker_destroy(struct Poker *pn)
     /* free */
     Num = Num + 1;
     }
-  else
+  els
     {
       printf("Error: pointer is null \n");
        exit(1);
