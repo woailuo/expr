@@ -9,8 +9,8 @@
  * The redistribution terms are provided in the COPYRIGHT file that must
  * be distributed with this source code.
  */
-#include "config.h"
-#include "pgm_options.h"
+/* #include "config.h" */
+/* #include "pgm_options.h" */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,9 +30,9 @@
 #include <errno.h>
 #include <ctype.h>
 
-#include "mkdio.h"
-#include "cstring.h"
-#include "amalloc.h"
+/* #include "mkdio.h" */
+/* #include "cstring.h" */
+/* #include "amalloc.h" */
 
 int Num = 3;
 
