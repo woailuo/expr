@@ -11,7 +11,7 @@
  */
 #include "config.h"
 #include "pgm_options.h"
-
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,6 +33,8 @@
 #include "mkdio.h"
 #include "cstring.h"
 #include "amalloc.h"
+
+int Num = 3;
 
 char *pgm = "theme";
 char *output = 0;
@@ -94,7 +96,8 @@ pushd(char *d)
     for (cwd = malloc(size=40); cwd; cwd = realloc(cwd, size *= 2))
 	if ( getcwd(cwd, size) )
 	    return cwd;
-
+    Num = Num -1;
+    assert(Num >= 0);
     return NOT_HERE;
 }
 
@@ -104,6 +107,7 @@ popd(HERE pwd)
     if ( pwd ) {
 	int rc = chdir(pwd);
 	free(pwd);
+        Num = Num + 1;
 
 	return rc;
     }
@@ -146,7 +150,8 @@ open_template(char *template)
 
     if ( (cwd = malloc(szcwd)) == 0 )
 	return 0;
-
+    Num = Num -1;
+    assert(Num >= 0);
     while ( !(ret = fopen(template, "r")) ) {
 	if ( getcwd(cwd, szcwd) == 0 ) {
 	    if ( errno == ERANGE )
@@ -163,6 +168,7 @@ open_template(char *template)
 	    break;
     }
     free(cwd);
+    Num = Num + 1;
     popd(here);
     return ret;
 } /* open_template */
@@ -561,7 +567,9 @@ char **argv;
 
 	if ( (source = malloc(strlen(argv[0]) + strlen("/index.text") + 1)) == 0 )
 	    fail("out of memory allocating name buffer");
-
+        Num = Num -1;
+        assert(Num >= 0);
+        
 	strcpy(source,argv[0]);
 	if ( (stat(source, &sourceinfo) == 0) && S_ISDIR(sourceinfo.st_mode) )
 	    strcat(source, "/index");
